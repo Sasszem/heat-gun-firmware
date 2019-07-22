@@ -6,7 +6,35 @@ void rotaryEncoderInterrupt();
 #define ROT_DATA 4
 const int rs = 8, en = A5, d4 = A4, d5 = A3, d6 = A2, d7 = A1;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
-Menu menu(&lcd);
+
+
+Menu::Entry entries[3] = {
+  {
+    "Temp: %d \xdf" "C",
+    100,
+    100,
+    450,
+    0
+  },
+  {
+    "Set:  %d \xdf" "C",
+    100,
+    100,
+    450,
+    10
+  },
+  {
+    "Fan:  %d%%",
+    100,
+    10,
+    100,
+    5
+  }
+};
+
+
+Menu::Menu menu(&lcd, entries, 3);
+
 
 void setup() {
   // put your setup code here, to run once:
