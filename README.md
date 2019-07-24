@@ -1,9 +1,9 @@
 # heat-gun-firmware
-Arduino (ATMEGA328P) firmware for ~my heat gun~ soldering station project
+A homebrew dual soldering station (soldering iron + soldering heat gun) with digital control.
 
 For the schematics, see https://easyeda.com/barath.laci10/heat-gun
 
-A homebrew dual soldering station (soldering iron + soldering heat gun) with digital control.
+**Note: I am desigining HW AC parts with 240V@Hz in mind. Adjust them to yor needs if necessary!**
 
 
 Project goals:
