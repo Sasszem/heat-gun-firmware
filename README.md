@@ -1,5 +1,5 @@
 # heat-gun-firmware
-A homebrew dual soldering station (soldering iron + soldering heat gun) with digital control.
+A homebrew dual soldering station (soldering heat gun) with digital control.
 
 For the schematics, see https://easyeda.com/barath.laci10/heat-gun
 
@@ -7,7 +7,7 @@ For the schematics, see https://easyeda.com/barath.laci10/heat-gun
 
 
 Project goals:
- - 2 channel temperature control (thermocouple read & adjust output power via phase cutting)
+ - temperature control (thermocouple read & adjust output power via phase cutting)
  - 858 handle fan speed control & reed switch reading
  - simple to use interface using 16x2 alphanumeric LCD & rotary encoder
  - safe - no danger of electric shock
