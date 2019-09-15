@@ -43,6 +43,43 @@ Currently I am:
  - breadboard prototyping the circuit
  - writing the firmware
  - desigining the schematic
-     
-     
-     
+ - writing this readme
+ - doing a thousand other stuff, so expect slow progress!
+ 
+# Modules:
+
+## Main MCU(Mega328):
+- xtal + 2 caps
+- IC
+- resistor pullup on reset
+- (firmware)
+- ISP header
+
+## LCD
+- LCD
+- contrast pot
+- current limit resistor
+
+## Rotary switch 
+- rotary encoder
+
+## Fan speed control
+- IRFZ44 fet
+- 1N4007 as flyback
+- gate pulldown resistor
+
+## Temperature control
+
+### Temperature reading
+- MAX6675 breakout board via SPI
+
+### Triac control
+- header to external board - 1 pin + gnd
+- external board
+
+### ZCD (zero crossing detector)
+- header to external board - 2 pin + gnd
+- external board
+
+## Reed switch
+- header - 1 pin + gnd
