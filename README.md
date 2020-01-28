@@ -18,25 +18,26 @@ Project goals:
  Progress:
   - schematic is 85% done
      - zero crossing detector: 100%
-     - main logic PCB: 85%
+     - main logic PCB: 100%
      - triac control PCBs: 20%
-     - connected parts: 10%
-  - code is 20% done 
+     - connected parts: 75%
+  - code is 40% done 
      - menu: 90%
      - rotary: 100%
      - LCD: 100%
-     - phase cutting: 0%
-     - fan speed control: 90%
+     - phase cutting: 90%
+     - fan speed control: 100%
      - temperature reading: 0%
- - PCB desing is 10% done
+     - temperature controll feedback loop: 0%
+ - PCB desing is 75% done
      - ZCD module: 100%
-     - main logic pcb: 0%
-     - triac control: 0%
+     - main logic pcb: 100%
+     - triac control: 20%
 - HW is 10% built
      - ZCD module: 100%
-     - main logic PCB: 0%
+     - main logic PCB: 100%
      - triac control PCBs: 0%
-     - connected parts: 0%
+     - connected parts: 75%
      - case: 0%
      
 Currently I am:
@@ -83,3 +84,11 @@ Currently I am:
 
 ## Reed switch
 - header - 1 pin + gnd
+
+## Heater ON
+
+There are some inputs that control (enable or disable) the heating element:
+- reed switch in handle
+- swtich on front panel (or maybe a menu item?)
+
+Heater is ON (controlled by feedback loop) if and only if reed detects picked up AND switch is on.
