@@ -13,7 +13,7 @@ Project goals:
  - safe - no danger of electric shock
  - simple to build - 1 layered PCB to make DIY etching possible
  - cheap - at most half the prize of an already alaviable one
- - opensource - mega328p + arduino code
+ - opensource - mega328p + arduino code -> repairable
  
  Progress:
   - schematic is 85% done
@@ -33,7 +33,7 @@ Project goals:
      - ZCD module: 100%
      - main logic pcb: 100%
      - triac control: 20%
-- HW is 10% built
+- HW is 60% built
      - ZCD module: 100%
      - main logic PCB: 100%
      - triac control PCBs: 0%
@@ -41,7 +41,8 @@ Project goals:
      - case: 0%
      
 Currently I am:
- - breadboard prototyping the circuit
+ - experimenting with the already built modules
+ - troubbleshooting
  - writing the firmware
  - desigining the schematic
  - writing this readme
