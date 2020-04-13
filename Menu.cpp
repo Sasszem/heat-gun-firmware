@@ -1,4 +1,5 @@
 #include "Menu.hpp"
+#include "Arduino.h"
 #include <assert.h>
 namespace Menu {
   int limit(int value, int low, int high) {
@@ -30,6 +31,7 @@ namespace Menu {
   void Menu::init(){
     lcd->begin(16, 2);
     lcd->createChar(0, arrow);
+    dirty = true;
   }
   
   void Menu::rotation(int8_t direction)
@@ -50,10 +52,14 @@ namespace Menu {
   
       current->value = limit(current->value, current->minimum, current->maximum);
     }
+    dirty = true;
+    Serial.println("dirty due to rotation");
   }
   
   void Menu::button() {
     mode = !mode;
+    dirty = true;
+    Serial.println("Dirty due to button");
   }
   
   void Menu::drawLine(int line) {
@@ -72,8 +78,13 @@ namespace Menu {
     lcd->print(buff);
   }
   
-  void Menu::redraw()
+  void Menu::redraw(bool force)
   {
+    if (!(dirty || force)) {
+      return;
+    }
+    dirty = false;
+    Serial.println("Redrawing");
     lcd->clear();
     lcd->setCursor(0,0); drawLine(currentLine);
     if (currentLine < numEntries-1) {
@@ -85,6 +96,11 @@ namespace Menu {
   {
     assert(idx>=0&&idx<numEntries);
     entries[idx].value = val;
+    if (idx==currentLine || idx==currentLine + 1)
+    {
+      dirty = true;
+      Serial.println("Dirty due to setValue");
+    }
   }
 
   int Menu::getValue(int idx)

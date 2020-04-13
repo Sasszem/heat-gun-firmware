@@ -21,6 +21,7 @@ namespace Menu
           void drawLine(int line);
           Entry *entries;
           int numEntries;
+          bool dirty = false;
       public:
           
           Menu(LiquidCrystal *display, Entry* ent, int num);
@@ -29,8 +30,8 @@ namespace Menu
   
           void rotation(int8_t direction);
           void button();
-  
-          void redraw();
+
+          void redraw(bool force = false);
           
           void setValue(int idx, int value);
           int getValue(int idx);
