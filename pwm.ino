@@ -1,4 +1,6 @@
 #include "Menu.hpp"
+#include "max6675.h"
+
 
 #define ROT_SW 4
 #define ROT_CLK 5
@@ -12,13 +14,15 @@
 #define LCD_D7 A5
 
 #define TMP_CS 8
-#define TMP_SO LCD_D4
-#define TMP_SCK LCD_D5
+#define TMP_SO A3
+#define TMP_SCK A2
 
 #define TRIAC 9
+#define 
 
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
-
+MAX6675 thermocouple(TMP_SCK, TMP_CS, TMP_SO);
+bool should_heat;
 
 Menu::Entry entries[4] = {
   {
@@ -55,14 +59,7 @@ Menu::Entry entries[4] = {
 Menu::Menu menu(&lcd, entries, 4);
 
 
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
-
-  pinMode(ROT_CLK, INPUT_PULLUP);
-  pinMode(ROT_DATA, INPUT_PULLUP);
-  pinMode(ROT_SW, INPUT_PULLUP);
-
+void setupTimer() {
   //////////////////////////////////////
   // DO NOT TOUCH THE FOLLOWING CODE! //
   //////////////////////////////////////
@@ -79,13 +76,23 @@ void setup() {
   // freq is 10 kHz
   OCR2A = 100;
   OCR2B = 0;
+}
+
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+
+  pinMode(ROT_CLK, INPUT_PULLUP);
+  pinMode(ROT_DATA, INPUT_PULLUP);
+  pinMode(ROT_SW, INPUT_PULLUP);
+
+  setupTimer();
 
   // attach ZCD interrupt
   attachInterrupt(0, on_zcd, RISING);
   pinMode(TRIAC, OUTPUT);
 
-  pinMode(TMP_CS, OUTPUT);
-  digitalWrite(TMP_CS, HIGH);
   menu.init();
   menu.redraw();
   lcd.clear();
@@ -149,37 +156,57 @@ int8_t read_rotary() {
    return 0;
 }
 
+void handleButton() {
+  static unsigned long button_cooldown;  
 
-
-/*
-void angle(){
-  bright=analogRead(pot);
-  bright=map(bright,0,1023,0,10000);
-  delayMicroseconds(bright);
-  digitalWrite(triac, HIGH);
-  delayMicroseconds(100);
-  digitalWrite(triac, LOW);
-}*/
-
-unsigned long button_cooldown = 0;
-int rot_dir;
-void loop() {
-  fire_triac();
-  if (rot_dir = read_rotary())
-  {
-    Serial.println("ROTATION: ");
-    Serial.println(rot_dir);
-    menu.rotation(rot_dir);
-    menu.redraw();
-    value = entries[2].value;
-    phase_shift = entries[3].value;
-  }
   if (digitalRead(ROT_SW)!=HIGH && button_cooldown <= millis())
   {
     button_cooldown = millis() + 450;
     menu.button();
     Serial.println("MODE SWITCH");
     Serial.println(button_cooldown);
-    menu.redraw();
   }
+}
+
+// J vs K conversion
+const double conversion_constant = 0.782;
+// average temperature of my workspace ( based on some guesses )
+// needed to correct cold-junction compensation
+// but due to that, a systemic error is also in this method!
+const double average_temp = 20;
+
+void readThermo() {
+  static unsigned long cooldown;
+
+  if (cooldown<=millis())
+  {
+    cooldown = millis() + 500;
+    double temp_K = thermocouple.readCelsius();
+    //double temp_j = (temp_K - average_temp)*conversion_constant + average_temp; // disabled for now
+    menu.setValue(0, (int)(temp_K+0.5));
+    Serial.println(menu.getValue(0));
+  }
+}
+
+void handleRotary() {
+  int rot_dir;
+
+  if (rot_dir = read_rotary())
+  {
+    Serial.println("ROTATION: ");
+    Serial.println(rot_dir);
+    menu.rotation(rot_dir);
+    
+    value = menu.getValue(2);
+    phase_shift = menu.getValue(3);
+    
+  }
+}
+
+void loop() {
+  fire_triac();
+  handleButton();
+  handleRotary();
+  //readThermo();
+  menu.redraw();
 }
