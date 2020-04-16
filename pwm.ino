@@ -1,10 +1,11 @@
-#include "Menu.hpp"
 #include "max6675.h"
 
 
 #define ROT_SW 4
 #define ROT_CLK 5
 #define ROT_DATA 6
+
+#define REED 7
 
 #define LCD_RS A0
 #define LCD_EN A1
@@ -18,46 +19,21 @@
 #define TMP_SCK A2
 
 #define TRIAC 9
-#define 
+#include "Menu.hpp"
 
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
 MAX6675 thermocouple(TMP_SCK, TMP_CS, TMP_SO);
-bool should_heat;
+bool reed;
 
-Menu::Entry entries[4] = {
-  {
-    "Temp: %d \xdf" "C",
-    100,
-    100,
-    450,
-    0
-  },
-  {
-    "Set:  %d \xdf" "C",
-    100,
-    100,
-    450,
-    10
-  },
-  {
-    "Fan:  %d%%",
-    100,
-    10,
-    100,
-    5
-  },
-  {
-    "Delay: %d us",
-    10000,
-    0,
-    10000,
-    100
-  }
-};
+Menu::Menu<5> menu(&lcd);
 
-
-Menu::Menu menu(&lcd, entries, 4);
-
+void setupMenu() {
+  menu.setEntry<0>("Temp: %d \xdf" "C", 100, 500, 0, 10);
+  menu.setEntry<1>("Set:  %d \xdf" "C", 100, 500, 10, 100);
+  menu.setEntry<2>("Fan:  %d%%", 50, 100, 5, 100);
+  menu.setEntry<3>("Power: %d%%", 10, 100, 5, 70);
+  menu.setEntry<4>("R/H state: %02d", 0, 11, 0, 10);
+}
 
 void setupTimer() {
   //////////////////////////////////////
@@ -87,12 +63,15 @@ void setup() {
   pinMode(ROT_DATA, INPUT_PULLUP);
   pinMode(ROT_SW, INPUT_PULLUP);
 
+  pinMode(REED, INPUT_PULLUP);
+
   setupTimer();
 
   // attach ZCD interrupt
   attachInterrupt(0, on_zcd, RISING);
   pinMode(TRIAC, OUTPUT);
 
+  setupMenu();
   menu.init();
   menu.redraw();
   lcd.clear();
@@ -102,15 +81,20 @@ void setup() {
   
 }
 
+bool heat;
+
+
 volatile unsigned long fire;
 volatile unsigned int phase_shift;
 void fire_triac() {
   unsigned long t = micros() - fire;
-  if (t>=phase_shift && fire!=0 && t<15000) {
+  if (fire!=0 && t>=phase_shift && t<15000) {
     fire = 0;
-    digitalWrite(TRIAC, HIGH);
-    delayMicroseconds(100);
-    digitalWrite(TRIAC, LOW);
+    if (heat) {
+      digitalWrite(TRIAC, HIGH);
+      delayMicroseconds(100);
+      digitalWrite(TRIAC, LOW);
+    }
   }
 }
 
@@ -121,10 +105,10 @@ void on_zcd() {
 }
 
 
-volatile int value = 10;
+volatile int fan_speed = 50;
 
 ISR(TIMER2_COMPA_vect){
-  OCR2B = value;
+  OCR2B = fan_speed;
 }
 
 
@@ -183,10 +167,11 @@ void readThermo() {
     cooldown = millis() + 500;
     double temp_K = thermocouple.readCelsius();
     //double temp_j = (temp_K - average_temp)*conversion_constant + average_temp; // disabled for now
-    menu.setValue(0, (int)(temp_K+0.5));
-    Serial.println(menu.getValue(0));
+    menu.set<0>((int)(temp_K+0.5));
+    Serial.println(menu.get<0>());
   }
 }
+
 
 void handleRotary() {
   int rot_dir;
@@ -196,17 +181,36 @@ void handleRotary() {
     Serial.println("ROTATION: ");
     Serial.println(rot_dir);
     menu.rotation(rot_dir);
-    
-    value = menu.getValue(2);
-    phase_shift = menu.getValue(3);
-    
   }
+}
+
+void handleReed() {
+  static unsigned long cooldown;
+  if (cooldown<=millis()) {
+    cooldown = millis() + 1000;
+    
+    reed = digitalRead(REED)==LOW;
+    menu.set<4>((reed ? 10 : 0)+(heat ? 1 : 0));
+  }
+}
+
+void shouldHeat() {
+  heat = !reed && (menu.get<0>()<menu.get<1>());
+}
+
+
+inline int power_to_delay(int power) {
+  return map(power, 0, 100, 10000, 1000);
 }
 
 void loop() {
   fire_triac();
   handleButton();
   handleRotary();
-  //readThermo();
+  readThermo();
+  handleReed();
+  shouldHeat();
+  phase_shift = power_to_delay(menu.get<3>());
+  fan_speed = menu.get<2>();
   menu.redraw();
 }
