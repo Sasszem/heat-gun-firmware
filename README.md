@@ -16,37 +16,7 @@ Project goals:
  - opensource - mega328p + arduino code -> repairable
  
  Progress:
-  - schematic is 85% done
-     - zero crossing detector: 100%
-     - main logic PCB: 100%
-     - triac control PCBs: 20%
-     - connected parts: 75%
-  - code is 40% done 
-     - menu: 90%
-     - rotary: 100%
-     - LCD: 100%
-     - phase cutting: 90%
-     - fan speed control: 100%
-     - temperature reading: 0%
-     - temperature controll feedback loop: 0%
- - PCB desing is 75% done
-     - ZCD module: 100%
-     - main logic pcb: 100%
-     - triac control: 20%
-- HW is 60% built
-     - ZCD module: 100%
-     - main logic PCB: 100%
-     - triac control PCBs: 0%
-     - connected parts: 75%
-     - case: 0%
-     
-Currently I am:
- - experimenting with the already built modules
- - troubbleshooting
- - writing the firmware
- - desigining the schematic
- - writing this readme
- - doing a thousand other stuff, so expect slow progress!
+ - thing is built, firmware is working. Temperature control is working, albeit kinda shitty (simple on-off control), so improvements are possible.
  
 # Modules:
 
